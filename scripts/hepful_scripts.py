@@ -9,6 +9,11 @@ from brownie import (
     interface,
 )
 
+import os
+import shutil
+import yaml
+import json
+
 DECIMALS = 8
 STARTING_PRICE = 200000000000
 
@@ -78,3 +83,22 @@ def fund_with_link(
     tx.wait(1)
     print("Contract Funded!")
     return tx
+
+
+def update_frontend():
+    """
+    Copy the build folder to the frontend
+    """
+    copy_folders_to_frontend("./build", "./frontend/src/chain-info")
+
+    with open("brownie-config.yaml", "r") as brownie_config:
+        config_dict = yaml.load(brownie_config, Loader=yaml.FullLoader)
+        with open("./frontend/src/brownie-config.json", "w") as brownie_config_json:
+            json.dump(config_dict, brownie_config_json)
+    print("FrontEnd updated!")
+
+
+def copy_folders_to_frontend(src, dest):
+    if os.path.exists(dest):
+        shutil.rmtree(dest)
+    shutil.copytree(src, dest)
